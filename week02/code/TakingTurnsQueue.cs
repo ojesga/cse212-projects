@@ -1,7 +1,9 @@
+using System;
+
 /// <summary>
 /// This queue is circular.  When people are added via AddPerson, then they are added to the 
 /// back of the queue (per FIFO rules).  When GetNextPerson is called, the next person
-/// in the queue is saved to be returned and then they are placed back into the back of the queue.  Thus,
+/// in the queue is saved to be returned and then they are placed back into the back of the queue.   Thus,
 /// each person stays in the queue and is given turns.  When a person is added to the queue, 
 /// a turns parameter is provided to identify how many turns they will be given.  If the turns is 0 or
 /// less than they will stay in the queue forever.  If a person is out of turns then they will 
@@ -40,10 +42,22 @@ public class TakingTurnsQueue
         else
         {
             Person person = _people.Dequeue();
-            if (person.Turns > 1)
+            
+            // FIX: If turns <= 0, they have infinite turns and go straight to the back without modification
+            if (person.Turns <= 0)
+            {
+                _people.Enqueue(person);
+            }
+            // If they have more than 1 turn left, decrement their turn and put them in the back
+            else if (person.Turns > 1)
             {
                 person.Turns -= 1;
                 _people.Enqueue(person);
+            }
+            // If they have exactly 1 turn left, decrement to 0 and do NOT re-enqueue them
+            else
+            {
+                person.Turns -= 1;
             }
 
             return person;
